@@ -17,7 +17,6 @@ export default function AdminDashboard() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [prizeImage, setPrizeImage] = useState('');
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [ticketPrice, setTicketPrice] = useState('');
   const [totalTickets, setTotalTickets] = useState('');
   const [drawDate, setDrawDate] = useState('');
@@ -70,7 +69,6 @@ export default function AdminDashboard() {
     setTitle('');
     setDescription('');
     setPrizeImage('');
-    setImageFile(null);
     setTicketPrice('');
     setTotalTickets('');
     setDrawDate('');
@@ -85,7 +83,6 @@ export default function AdminDashboard() {
     setTitle(raffle.title);
     setDescription(raffle.description);
     setPrizeImage(raffle.prize_image);
-    setImageFile(null);
     setTicketPrice(raffle.ticket_price.toString());
     setTotalTickets(raffle.total_tickets.toString());
     setYocoLink(raffle.yoco_link || '');
@@ -104,30 +101,8 @@ export default function AdminDashboard() {
   const handleSubmitRaffle = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      let finalImageUrl = prizeImage;
-
-      if (imageFile) {
-        const formData = new FormData();
-        formData.append('image', imageFile);
-        
-        const uploadRes = await fetch('/api/admin/upload', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-          body: formData
-        });
-        
-        if (!uploadRes.ok) {
-          throw new Error('Failed to upload image');
-        }
-        
-        const uploadData = await uploadRes.json();
-        finalImageUrl = uploadData.url;
-      }
-
-      if (!finalImageUrl) {
-        throw new Error('Please provide an image URL or upload a file');
+      if (!prizeImage) {
+        throw new Error('Please provide an image URL');
       }
 
       const url = editMode ? `/api/admin/raffles/${editingRaffleId}` : '/api/admin/raffles';
@@ -142,7 +117,7 @@ export default function AdminDashboard() {
         body: JSON.stringify({
           title,
           description,
-          prize_image: finalImageUrl,
+          prize_image: prizeImage,
           ticket_price: parseFloat(ticketPrice),
           total_tickets: parseInt(totalTickets),
           draw_date: new Date(drawDate).toISOString(),
@@ -327,28 +302,13 @@ export default function AdminDashboard() {
                 <textarea required value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 h-24" />
               </div>
               <div>
-                <label className="text-sm text-white/60 mb-1 block">Image</label>
+                <label className="text-sm text-white/60 mb-1 block">Image URL (e.g., /images/car.jpg or https://...)</label>
                 <div className="flex flex-col gap-2">
-                  <input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={e => {
-                      if (e.target.files && e.target.files[0]) {
-                        setImageFile(e.target.files[0]);
-                        setPrizeImage('');
-                      }
-                    }} 
-                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-yellow-500 file:text-black hover:file:bg-yellow-400" 
-                  />
-                  <div className="text-center text-xs text-white/40 font-bold">OR</div>
                   <input 
                     type="url" 
                     placeholder="Image URL"
                     value={prizeImage} 
-                    onChange={e => {
-                      setPrizeImage(e.target.value);
-                      setImageFile(null);
-                    }} 
+                    onChange={e => setPrizeImage(e.target.value)} 
                     className="w-full bg-black border border-white/10 rounded-xl px-4 py-2" 
                   />
                 </div>

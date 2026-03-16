@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { db } from './db.js';
@@ -155,25 +154,6 @@ apiRouter.get('/winners', async (req, res) => {
 });
 
 // Admin Routes
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '..', '..', 'uploads'));
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const upload = multer({ storage });
-
-apiRouter.post('/admin/upload', authenticate, requireAdmin, upload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-  res.json({ url: `/uploads/${req.file.filename}` });
-});
-
 apiRouter.get('/admin/users', authenticate, requireAdmin, async (req, res) => {
   const [users] = await db.query('SELECT id, name, email, role, created_at FROM users');
   res.json(users);
