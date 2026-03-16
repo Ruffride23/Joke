@@ -5,7 +5,7 @@ esbuild.build({
   bundle: true,
   platform: 'node',
   target: 'node20',
-  outfile: 'dist/server.cjs',
-  format: 'cjs',
-  external: ['express', 'better-sqlite3', 'bcryptjs', 'jsonwebtoken', 'dotenv', 'vite'],
+  outfile: 'dist/server.js',
+  format: 'esm',
+  external: ['express', 'mysql2', 'bcryptjs', 'jsonwebtoken', 'dotenv', 'vite'],
 }).catch(() => process.exit(1));

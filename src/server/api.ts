@@ -5,9 +5,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { db } from './db.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 export const apiRouter = Router();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key-for-ticketlux';
